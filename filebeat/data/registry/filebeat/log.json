@@ -1,0 +1,4 @@
+{"op":"set","id":1}
+{"k":"filebeat::logs::native::1970324837069117-32","v":{"id":"native::1970324837069117-32","prev_id":"","offset":0,"timestamp":[293990763,1675893322],"type":"log","FileStateOS":{"device":32,"inode":1970324837069117},"identifier_name":"native","source":"/var/log/nginx/access.log","ttl":-1}}
+{"op":"set","id":2}
+{"k":"filebeat::logs::native::1970324837069117-32","v":{"id":"native::1970324837069117-32","source":"/var/log/nginx/access.log","offset":0,"timestamp":[293990763,1675893322],"ttl":-1,"identifier_name":"native","prev_id":"","type":"log","FileStateOS":{"inode":1970324837069117,"device":32}}}

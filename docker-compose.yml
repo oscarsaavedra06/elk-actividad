@@ -8,6 +8,23 @@ services:
       - /apollo-server-app/app/node_modules
     ports:
       - "4000:4000"
+  filebeat:
+    build: ./filebeat
+    container_name: filebeat
+    user: root
+    environment:
+        - strict.perms=false
+    volumes:
+        - './filebeat/data:/usr/share/filebeat/data:rw'
+        - './nginx/log:/var/log/nginx'    
+  nginx:
+    build: ./nginx
+    volumes:
+       - './nginx/log:/var/log/nginx'
+    ports:
+    - '80:80'
+    depends_on:
+    - web
   elasticsearch:
     image: elasticsearch:7.8.1
     ports:
