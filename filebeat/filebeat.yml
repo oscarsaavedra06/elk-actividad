@@ -1,17 +1,42 @@
-filebeat.inputs:
-- type: log
-  paths:
-    - "/var/log/nginx/*"
-  fields:
-    parser: accessLog
-    app: nginx
-  fields_under_root: true
+# filebeat.inputs:
+# - type: log
+#   paths:
+#     - "/var/log/nginx/*"
+#   # fields:
+#   #   parser: accessLog
+#   #   app: nginx
+#   # fields_under_root: true
 
-# setup:
-#   kibana.host: "http://kibana:5601"
-#   dashboards.enable: true
+filebeat.config.modules:
+  # Glob pattern for configuration loading
+  path: ${path.config}/modules.d/*.yml
+
+  # Set to true to enable config reloading
+  reload.enabled: false
+
+  # Period on which files under path should be checked for changes
+  reload.period: 10s
+
+filebeat.modules:
+- module: nginx
+  access:
+    var.paths: ["/var/log/nginx/access.log"]
+  error:
+    var.paths: ["/var/log/nginx/error.log"]
+
+# setup.template.settings:
+#   index.number_of_shards: 1
+  #index.codec: best_compression
+  #_source.enabled: false
 
 output.elasticsearch:
+  output.elasticsearch.index: "nginx-log-%{[agent.version]}"
+  setup.template.name: "nginx-log"
+  setup.template.pattern: "nginx-log-%{[agent.version]}"
   hosts: ["elasticsearch:9200"]
-  username: 'elastic'
-  password: 'abc123'
+  # username: 'elastic'
+  # password: 'abc123'
+
+setup:
+  kibana.host: "kibana:5601"
+  dashboards.enable: true

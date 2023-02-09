@@ -16,7 +16,10 @@ services:
         - strict.perms=false
     volumes:
         - './filebeat/data:/usr/share/filebeat/data:rw'
-        - './nginx/log:/var/log/nginx'    
+        - './nginx/log:/var/log/nginx'
+    depends_on:
+    - elasticsearch
+    - kibana
   nginx:
     build: ./nginx
     volumes:
@@ -26,15 +29,15 @@ services:
     depends_on:
     - web
   elasticsearch:
-    image: elasticsearch:7.8.1
+    image: elasticsearch:8.6.1
     ports:
       - 9200:9200
     environment:
       discovery.type: 'single-node'
-      xpack.security.enabled: 'true'
-      ELASTIC_PASSWORD: 'abc123'
+      xpack.security.enabled: 'false'
+      #ELASTIC_PASSWORD: 'abc123'
   kibana:
-    image: kibana:7.8.1
+    image: kibana:8.6.1
     volumes:
       - ./kibana.yml:/usr/share/kibana/config/kibana.yml
     ports:
