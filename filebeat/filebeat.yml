@@ -1,11 +1,11 @@
-# filebeat.inputs:
-# - type: log
-#   paths:
-#     - "/var/log/nginx/*"
-#   # fields:
-#   #   parser: accessLog
-#   #   app: nginx
-#   # fields_under_root: true
+filebeat.inputs:
+- type: container
+  paths:
+    - "/var/lib/docker/containers/*/*-json.log"
+  # fields:
+  #   parser: accessLog
+  #   app: nginx
+  # fields_under_root: true
 
 filebeat.config.modules:
   # Glob pattern for configuration loading

@@ -8,18 +8,6 @@ services:
       - /apollo-server-app/app/node_modules
     ports:
       - "4000:4000"
-  filebeat:
-    build: ./filebeat
-    container_name: filebeat
-    user: root
-    environment:
-        - strict.perms=false
-    volumes:
-        - './filebeat/data:/usr/share/filebeat/data:rw'
-        - './nginx/log:/var/log/nginx'
-    depends_on:
-    - elasticsearch
-    - kibana
   nginx:
     build: ./nginx
     volumes:
@@ -42,3 +30,17 @@ services:
       - ./kibana.yml:/usr/share/kibana/config/kibana.yml
     ports:
       - 5601:5601 
+  filebeat:
+    build: ./filebeat
+    container_name: filebeat
+    user: root
+    environment:
+        - strict.perms=false
+    volumes:
+      #  - './filebeat/data:/usr/share/filebeat/data:rw'
+        - './nginx/log:/var/log/nginx'
+      #  - './containers:/var/lib/docker/containers'
+    depends_on:
+    - kibana
+    - elasticsearch
+   
