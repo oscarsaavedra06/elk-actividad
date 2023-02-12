@@ -1,0 +1,18 @@
+metricbeat.config.modules:
+#Modulos son habilitados desde las configuraciones del subdirectorio .modules.d, los cambios seran tomados automaticamente
+  path: ${path.config}/modules.d/*.yml
+  reload.period: 10s
+  reload.enabled: true
+
+#Todas las salidas seran enviadas a elastic
+output.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
+ # index: "metricbeat-%{[beat.version]}"
+ # index_pattern: "-%{+yyyy.MM.dd}"
+  username: "elasticuser"
+  password: "changeme"
+#Para crear indices diarios segun el patron definido
+#  ilm.enabled: true
+
+logging.to_files: false
+
