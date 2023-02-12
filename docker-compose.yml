@@ -1,6 +1,7 @@
-version: '2'
+version: '2.1'
 services:
   web:
+    hostname: "apollo-server"
     build: ./apollo-server-app
     command: npm run start
     volumes:
@@ -8,6 +9,8 @@ services:
       - /apollo-server-app/app/node_modules
     ports:
       - "4000:4000"
+    networks: ["elastic"]
+
   filebeat:
     build: ./filebeat
     container_name: filebeat
@@ -17,10 +20,16 @@ services:
     volumes:
         - './filebeat/data:/usr/share/filebeat/data:rw'
         - './nginx/log:/var/log/nginx'
+        # Montamos el directorio logs del sistema base, que sera consumido por el modulo filebeat
+        - '/var/log/:/var/log/host/:ro'
     depends_on:
     - elasticsearch
     - kibana
+    networks: ["elastic"]
+    restart: on-failure
+
   nginx:
+    hostname: "nginx-server"
     build: ./nginx
     volumes:
        - './nginx/log:/var/log/nginx'
@@ -28,17 +37,47 @@ services:
     - '80:80'
     depends_on:
     - web
+    networks: ["elastic"]   
+
   elasticsearch:
-    image: elasticsearch:8.6.1
+    hostname: "elasticsearch"
+    container_name: "elasticsearch"
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.1
     ports:
       - 9200:9200
     environment:
       discovery.type: 'single-node'
       xpack.security.enabled: 'false'
+      http.host: '0.0.0.0'
+      transport.host: '127.0.0.1'
       #ELASTIC_PASSWORD: 'abc123'
+    networks: ["elastic"]
+
   kibana:
-    image: kibana:8.6.1
+    hostname: "kibana-server"
+    image: docker.elastic.co/kibana/kibana:8.6.1
     volumes:
       - ./kibana.yml:/usr/share/kibana/config/kibana.yml
     ports:
       - 5601:5601 
+    networks: ["elastic"]
+    depends_on: ["elasticsearch"]
+
+  metricbeat:
+    container_name: metricbeat
+    hostname: metricbeat
+    user: root
+    image: docker.elastic.co/beats/metricbeat:8.6.1
+    volumes:
+      - ./metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml
+      - ./metricbeat/modules.d/:/usr/share/metricbeat/modules.d/
+      - /proc:/hostfs/proc:ro
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      - /:/hostfs:ro    
+    command: metricbeat -e -system.hostfs=/hostfs -strict.perms=false
+    networks: ["elastic"]
+    restart: on-failure
+    depends_on: ["elasticsearch", "nginx", "web"]
+
+networks:
+    elastic: {}
