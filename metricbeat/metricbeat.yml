@@ -16,3 +16,7 @@ output.elasticsearch:
 
 logging.to_files: false
 
+# Kibana config
+
+setup.kibana:
+  host:"http://kibana:5601"

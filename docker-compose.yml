@@ -79,5 +79,22 @@ services:
     restart: on-failure
     depends_on: ["elasticsearch", "nginx", "web"]
 
+#Packetbeat container
+  packetbeat:
+    container_name: packetbeat
+    hostname: packetbeat
+    image: "docker.elastic.co/beats/packetbeat:8.6.1"
+    volumes:
+      - ./packetbeat/packetbeat.yml:/usr/share/packetbeat/packetbeat.yml
+    # Packetbeat needs some elevated privileges to capture network traffic.
+    # We'll grant them with POSIX capabilities.
+    cap_add: ['NET_RAW', 'NET_ADMIN']
+    # Use "host mode" networking to allow Packetbeat to capture traffic from
+    # the real network interface on the host, rather than being isolated to the
+    # container's virtual interface.
+    network_mode: host
+    command: packetbeat -e -E output.elasticsearch.hosts='["http://localhost:9200"]' -E output.elasticsearch.username=elastic -E output.elasticsearch.password=changeme -strict.perms=false
+    depends_on: ["elasticsearch"]
+
 networks:
     elastic: {}
